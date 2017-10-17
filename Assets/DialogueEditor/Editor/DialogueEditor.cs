@@ -79,12 +79,12 @@ public class DialogueEditor : EditorWindow {
 	float _maxXScale = 400f;
 	float _maxYScale = 300f;
 	Vector2 _defaultRectSize = Vector2.zero;
+	Vector2 _winPos = Vector2.zero;
 
 	void Zoom(){
 		Event e = Event.current;
 		if (e.type == EventType.scrollWheel) {
-			_xDisplacement = 0f;
-			_yDisplacement = 0f;
+
 			if (-e.delta.y > 0f) {
 				_xScale = _zoomSensitivity;
 				_yScale = _zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
@@ -92,25 +92,32 @@ public class DialogueEditor : EditorWindow {
 				_xScale = -_zoomSensitivity;
 				_yScale = -_zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
 			}
-				
+
 			foreach (var window in controls) {
 				if (window.rect.width < _maxXScale && window.rect.height < _maxYScale &&
-					window.rect.width > _minXScale && window.rect.height > _minYScale) {
-					if (e.mousePosition.x < window.rect.x - window.rect.width / 2f) {
-						_xDisplacement = _zoomSensitivity;
-					} else if (e.mousePosition.x > window.rect.x - window.rect.width / 2f) {
-						_xDisplacement = -_zoomSensitivity;
-					} else if (e.mousePosition.y < window.rect.y - window.rect.height / 2f) {
-						_yDisplacement = _zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
-					} else if (e.mousePosition.y > window.rect.y - window.rect.height / 2f) {
-						_yDisplacement = -_zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
+				    window.rect.width > _minXScale && window.rect.height > _minYScale) {
+
+					_winPos = new Vector2 (window.rect.x + (window.rect.width / 2f), window.rect.y + (window.rect.height / 2f));
+
+					if (e.mousePosition.x < _winPos.x) {
+						_xDisplacement = _xScale;
+					} else if (e.mousePosition.x > _winPos.x) {
+						_xDisplacement = -_xScale;
 					}
+
+					if (e.mousePosition.y < _winPos.y) {
+						_yDisplacement = _yScale;
+					} else if (e.mousePosition.y > _winPos.y) {
+						_yDisplacement = -_yScale;
+					}
+
+				} else {
+					_xDisplacement = 0f;
+					_yDisplacement = 0f;
 				}
-
-
 				window.rect = new Rect (
-					window.rect.x + _xDisplacement * -e.delta.y, 
-					window.rect.y + _yDisplacement * -e.delta.y, 
+					window.rect.x + _xDisplacement * Vector2.Distance(e.mousePosition, window.rect.position) / window.rect.width,
+					window.rect.y + _yDisplacement * Vector2.Distance(e.mousePosition, window.rect.position) / window.rect.height,
 					Mathf.Clamp (window.rect.width + _xScale, _minXScale, _maxXScale),
 					Mathf.Clamp (window.rect.height + _yScale, _minYScale, _maxYScale)
 				);
@@ -118,6 +125,5 @@ public class DialogueEditor : EditorWindow {
 		}
 		Repaint ();
 	}
-
 	//END ZOOM CONTROL
 }
