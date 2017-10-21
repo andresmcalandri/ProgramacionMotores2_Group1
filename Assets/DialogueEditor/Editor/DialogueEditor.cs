@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+using System.IO;
 
 public class DialogueEditor : EditorWindow {
     
@@ -21,8 +21,10 @@ public class DialogueEditor : EditorWindow {
 
     void OnGUI()
     {
-        if (GUILayout.Button("Create Window"))
-            CreateControl();
+        if (GUILayout.Button("Create new Dialogue"))
+            CreateDialogue();
+
+        OnGUIDialogue();
 
         BeginWindows();
 
@@ -34,9 +36,32 @@ public class DialogueEditor : EditorWindow {
 		Zoom ();
         EndWindows();
     }
-		
 
-    public void CreateControl()
+    void CreateDialogue()
+    {
+        dialogue = ScriptableObject.CreateInstance<Dialogue>();
+    }
+
+    void OnGUIDialogue()
+    {
+        if (dialogue == null)
+            GUI.enabled = false;
+        else
+        {
+            dialogue.name = EditorGUILayout.TextField("Name", dialogue.name);
+
+            if (GUILayout.Button("Create Window"))
+                CreateControl();
+
+            if (GUILayout.Button("Save"))
+                SaveDialogue();
+        }
+
+
+        GUI.enabled = true;
+    }
+
+    void CreateControl()
     {
 		DialogueItem dialogueItem = ScriptableObject.CreateInstance<DialogueItem> ();
 		dialogueItem.id = dialogueCount++;
@@ -61,10 +86,30 @@ public class DialogueEditor : EditorWindow {
 
 	}
 
-	//TODO Save a dialogue asset
+	//TODO Finish it like it should be
 	void SaveDialogue()
 	{
-		
+        if (dialogue == null)
+        {
+            EditorUtility.DisplayDialog("Error","Please create a Dialogue First and set a name", "Ok");
+            return;
+        }
+
+        DialogueItem dialogueItem;
+        foreach (DialogueItemWindow itemWindow in controls)
+        {
+            dialogueItem = itemWindow.dialogue;
+            if (dialogueItem != null)
+            {
+                string path = "Assets/Resources/Dialogues/" + dialogue.name;
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                AssetDatabase.CreateAsset(dialogueItem, path +  "/" + dialogueItem.id.ToString() + ".asset");
+            }
+        }
+
+        AssetDatabase.SaveAssets();
 	}
 
 	//START ZOOM CONTROL

@@ -23,6 +23,12 @@ public class DialogueItemWindow  {
 		}
 	}
 
+    public DialogueItem dialogue {
+        get {
+            return _dialogue;
+        }
+    }
+
 	public DialogueItemWindow(DialogueItem dialogueItem, DialogueEditor parent) 
 	{
 		_dialogue = dialogueItem;
