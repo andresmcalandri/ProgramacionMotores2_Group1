@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Linq;
 
 public class DialogueEditor : EditorWindow {
     
@@ -12,9 +13,14 @@ public class DialogueEditor : EditorWindow {
         EditorWindow.GetWindow(typeof(DialogueEditor));
     }
 
+	//TODO We should show this in some kind of options
+	public const string SAVE_PATH = "Assets/Resources/Dialogues/";
+
+
 	//TODO Create a button to create a new dialogue
 	Dialogue dialogue = null;
 	List<DialogueItemWindow> controls = new List<DialogueItemWindow>();
+	List<int> itemsToDelete = new List<int>();
 
 	//TODO Create an id management that actually works.
 	int dialogueCount = 0;
@@ -24,12 +30,8 @@ public class DialogueEditor : EditorWindow {
     int gridZoom = 0;
     Vector2 offset = new Vector2();
 
-
     void OnGUI()
     {
-        if (GUILayout.Button("Create new Dialogue"))
-            CreateDialogue();
-
         OnGUIDialogue();
 
         BeginWindows();
@@ -53,8 +55,21 @@ public class DialogueEditor : EditorWindow {
 
     void OnGUIDialogue()
     {
-        if (dialogue == null)
-            GUI.enabled = false;
+		if (GUILayout.Button("Create new Dialogue"))
+			CreateDialogue();
+		
+		if (dialogue == null) {
+
+			dialogueToLoad = EditorGUILayout.TextField ("Load", dialogueToLoad);
+			string path = SAVE_PATH + dialogueToLoad;
+
+			GUI.enabled = Directory.Exists(path) && path != SAVE_PATH;
+
+			if (GUILayout.Button ("Load"))
+				LoadDialogue (path, dialogueToLoad);
+			
+			GUI.enabled = false;
+		}
         else
         {
             dialogue.name = EditorGUILayout.TextField("Name", dialogue.name);
@@ -70,10 +85,14 @@ public class DialogueEditor : EditorWindow {
         GUI.enabled = true;
     }
 
-    void CreateControl()
+	void CreateControl(DialogueItem item = null)
     {
-		DialogueItem dialogueItem = ScriptableObject.CreateInstance<DialogueItem> ();
-		dialogueItem.id = dialogueCount++;
+		DialogueItem dialogueItem = item;
+		if (item == null) 
+		{
+			dialogueItem = ScriptableObject.CreateInstance<DialogueItem> ();
+			dialogueItem.id = dialogueCount++;
+		}
 			
 		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this);
 		controls.Add(newWindow);
@@ -85,17 +104,36 @@ public class DialogueEditor : EditorWindow {
 
 	public void DeleteControl(DialogueItemWindow window)
     {
+		itemsToDelete.Add (window.dialogue.id);
 		controls.Remove(window);
     }
 
 
-	//TODO Load a dialogue asset
-	void LoadDialogue()
+	//TODO Move the load to a menu
+	string dialogueToLoad = "";
+	void LoadDialogue(string path, string dialogueName)
 	{
+		controls.Clear ();
+		itemsToDelete.Clear ();
 
+		CreateDialogue ();
+		dialogue.name = dialogueName;
+		dialogueCount = 0;
+		string[] files = Directory.GetFiles (path);
+
+		DialogueItem dialogueItem;
+		foreach (string file in files) {
+			if (file.Contains (".meta"))
+				continue;
+
+			dialogueItem = AssetDatabase.LoadAssetAtPath<DialogueItem>(file);
+			CreateControl (dialogueItem);
+
+			if (dialogueItem.id > dialogueCount)
+				dialogueCount = dialogueItem.id;
+		}
 	}
 
-	//TODO Finish it like it should be
 	void SaveDialogue()
 	{
         if (dialogue == null)
@@ -104,19 +142,34 @@ public class DialogueEditor : EditorWindow {
             return;
         }
 
-        DialogueItem dialogueItem;
+		string path = SAVE_PATH + dialogue.name;
+		if (!Directory.Exists(path))
+			Directory.CreateDirectory(path);
+
+		DialogueItem dialogueItem;
+		string fullPath;
+		
         foreach (DialogueItemWindow itemWindow in controls)
         {
             dialogueItem = itemWindow.dialogue;
             if (dialogueItem != null)
             {
-                string path = "Assets/Resources/Dialogues/" + dialogue.name;
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                AssetDatabase.CreateAsset(dialogueItem, path +  "/" + dialogueItem.id.ToString() + ".asset");
+				fullPath = path + "/" + dialogueItem.id.ToString () + ".asset";
+				if (!File.Exists (fullPath))
+					AssetDatabase.CreateAsset (dialogueItem, fullPath);
             }
         }
+
+		foreach (int id in itemsToDelete) {
+			fullPath = path + "/" + id.ToString ();
+			if (File.Exists (fullPath + ".asset"))
+				File.Delete (fullPath + ".asset");
+
+			if (File.Exists (fullPath + ".meta"))
+				File.Delete (fullPath + ".meta");
+		}
+
+		itemsToDelete.Clear ();
 
         AssetDatabase.SaveAssets();
 	}
