@@ -19,6 +19,12 @@ public class DialogueEditor : EditorWindow {
 	//TODO Create an id management that actually works.
 	int dialogueCount = 0;
 
+    //Grid Vars
+    int gridSpace = 0;
+    int gridZoom = 0;
+    Vector2 offset = new Vector2();
+
+
     void OnGUI()
     {
         if (GUILayout.Button("Create new Dialogue"))
@@ -35,6 +41,9 @@ public class DialogueEditor : EditorWindow {
 
 		Zoom ();
         EndWindows();
+
+        BeginGrid();
+
     }
 
     void CreateDialogue()
@@ -112,9 +121,36 @@ public class DialogueEditor : EditorWindow {
         AssetDatabase.SaveAssets();
 	}
 
-	//START ZOOM CONTROL
+    void BeginGrid()
+    {
+        //DrawGrid
+        gridSpace = 25 + gridZoom;
+        var lastRect = GUILayoutUtility.GetLastRect();
+        var rect = new Rect(0, lastRect.yMax, position.width, position.height - lastRect.yMax);
+        GUI.BeginGroup(rect);
+        //TODO: Descomentar cuando se pueda poner por detras de nuevos objetos y se ajuste correctamente al espacio
+        //DrawGrid(rect);
+        GUI.EndGroup();
+    }
 
-	float _zoomSensitivity = 3f;
+    void DrawGrid(Rect rect)
+    {
+        Handles.BeginGUI();
+        for (int x = (int)rect.xMin; x < rect.width; x += gridSpace)
+        {
+            Handles.DrawLine(new Vector2(x, rect.yMin) + offset, new Vector2(x, rect.yMax) + offset);
+        }
+        for (int y = (int)rect.yMin; y < rect.height; y += gridSpace)
+        {
+            Handles.DrawLine(new Vector2(rect.xMin, y) + offset, new Vector2(rect.xMax, y) + offset);
+        }
+        Handles.EndGUI();
+    }
+
+
+    //START ZOOM CONTROL
+
+    float _zoomSensitivity = 3f;
 	float _xScale = 0f;
 	float _yScale = 0f;
 	float _xDisplacement = 0f;
@@ -133,10 +169,12 @@ public class DialogueEditor : EditorWindow {
 			if (-e.delta.y > 0f) {
 				_xScale = _zoomSensitivity;
 				_yScale = _zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
+                gridZoom++;
 			} else if (-e.delta.y < 0f) {
 				_xScale = -_zoomSensitivity;
 				_yScale = -_zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
-			}
+                gridZoom--;
+            }
 
 			foreach (var window in controls) {
 				if (window.rect.width < _maxXScale && window.rect.height < _maxYScale &&
