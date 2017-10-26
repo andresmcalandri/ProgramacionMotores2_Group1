@@ -32,10 +32,10 @@ public class DialogueEditor : EditorWindow {
 
     void OnGUI()
     {
+        DrawContextualMenus();
         OnGUIDialogue();
 
         BeginWindows();
-
         for (int i = 0; i < controls.Count; i++)
         {
 			controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
@@ -55,37 +55,41 @@ public class DialogueEditor : EditorWindow {
 
     void OnGUIDialogue()
     {
-		if (GUILayout.Button("Create new Dialogue"))
-			CreateDialogue();
-		
-		if (dialogue == null) {
-
-			dialogueToLoad = EditorGUILayout.TextField ("Load", dialogueToLoad);
-			string path = SAVE_PATH + dialogueToLoad;
-
-			GUI.enabled = Directory.Exists(path) && path != SAVE_PATH;
-
-			if (GUILayout.Button ("Load"))
-				LoadDialogue (path, dialogueToLoad);
-			
-			GUI.enabled = false;
-		}
-        else
+        if (dialogue != null)
         {
             dialogue.name = EditorGUILayout.TextField("Name", dialogue.name);
 
             if (GUILayout.Button("Create Window"))
                 CreateControl();
-
-            if (GUILayout.Button("Save"))
-                SaveDialogue();
         }
-
-
-        GUI.enabled = true;
     }
 
-	void CreateControl(DialogueItem item = null)
+    void DrawContextualMenus()
+    {
+        if (GUILayout.Button(" File", GUILayout.MaxWidth(60)))
+        {
+            ToggleFileMenu();
+        }
+    }
+
+    void ToggleFileMenu()
+    {
+        GenericMenu menu = new GenericMenu();
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("New"), false, CreateDialogue);
+
+        if (dialogue != null)
+            menu.AddItem(new GUIContent("Save"), false, SaveDialogue);
+        else
+            menu.AddDisabledItem(new GUIContent("Save"));
+
+        menu.AddItem(new GUIContent("Load"), false, LoadDialogue);
+        menu.AddSeparator("");
+        menu.ShowAsContext();
+    }
+
+
+    void CreateControl(DialogueItem item = null)
     {
 		DialogueItem dialogueItem = item;
 		if (item == null) 
@@ -111,27 +115,38 @@ public class DialogueEditor : EditorWindow {
 
 	//TODO Move the load to a menu
 	string dialogueToLoad = "";
-	void LoadDialogue(string path, string dialogueName)
+	void LoadDialogue()
 	{
-		controls.Clear ();
-		itemsToDelete.Clear ();
+        dialogueToLoad = EditorUtility.OpenFolderPanel("Load", SAVE_PATH, "");
+        if (Directory.Exists(dialogueToLoad) && dialogueToLoad != SAVE_PATH)
+        {
+            controls.Clear();
+            itemsToDelete.Clear();
 
-		CreateDialogue ();
-		dialogue.name = dialogueName;
-		dialogueCount = 0;
-		string[] files = Directory.GetFiles (path);
+            string dialogueName = dialogueToLoad.Split('/').Last();
+            CreateDialogue();
+            dialogue.name = dialogueName;
+            dialogueCount = 0;
+            string[] files = Directory.GetFiles(dialogueToLoad);
 
-		DialogueItem dialogueItem;
-		foreach (string file in files) {
-			if (file.Contains (".meta"))
-				continue;
+            DialogueItem dialogueItem;
+            string fileName;
+            foreach (string file in files)
+            {
+                if (file.Contains(".meta"))
+                    continue;
 
-			dialogueItem = AssetDatabase.LoadAssetAtPath<DialogueItem>(file);
-			CreateControl (dialogueItem);
+                fileName = file.Split('/').Last();
+                dialogueItem = AssetDatabase.LoadAssetAtPath<DialogueItem>(SAVE_PATH + fileName);
+                if (dialogueItem != null)
+                { 
+                    CreateControl(dialogueItem);
 
-			if (dialogueItem.id > dialogueCount)
-				dialogueCount = dialogueItem.id;
-		}
+                    if (dialogueItem.id > dialogueCount)
+                        dialogueCount = dialogueItem.id;
+                }
+            }
+        }
 	}
 
 	void SaveDialogue()
