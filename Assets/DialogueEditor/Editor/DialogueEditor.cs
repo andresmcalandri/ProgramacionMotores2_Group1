@@ -41,6 +41,7 @@ public class DialogueEditor : EditorWindow {
 			controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
         }
 
+		//ZoomOld ();
 		Zoom ();
         EndWindows();
 
@@ -99,11 +100,17 @@ public class DialogueEditor : EditorWindow {
 		}
 			
 		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this);
-		controls.Add(newWindow);
-
 		//Default Dialogue Window Rect Size Reference for Zooming
 		_defaultRectSize = new Vector2 (newWindow.rect.width, newWindow.rect.height);
+		_defaultRectPos = new Vector2 (newWindow.rect.x, newWindow.rect.y);
 		//
+		newWindow.rect = new Rect (
+			newWindow.rect.x,
+			newWindow.rect.y,
+			_defaultRectSize.x * _zoomLevel,
+			_defaultRectSize.y * _zoomLevel
+		);
+		controls.Add(newWindow);
     }
 
 	public void DeleteControl(DialogueItemWindow window)
@@ -218,7 +225,39 @@ public class DialogueEditor : EditorWindow {
 
     //START ZOOM CONTROL
 
-    float _zoomSensitivity = 3f;
+	float _zoomLevel = 1;
+	const float _minZoom = 0.6f;
+	const float _maxZoom = 3f;
+	const float _zoomSensi = 0.1f;
+	Vector2 _defaultRectSize = Vector2.zero;
+	Vector2 _defaultRectPos = Vector2.zero;
+
+	void Zoom(){
+		Debug.Log ("Zoom Level: " + _zoomLevel);
+		Event e = Event.current;
+		if (e.type == EventType.scrollWheel) {
+			if (-e.delta.y > 0f) {
+				_zoomLevel += _zoomSensi;
+				_zoomLevel = Mathf.Clamp (_zoomLevel, _minZoom, _maxZoom);
+			} else if (-e.delta.y < 0f) {
+				_zoomLevel -= _zoomSensi;
+				_zoomLevel = Mathf.Clamp (_zoomLevel, _minZoom, _maxZoom);
+			}
+			foreach (var window in controls) {
+				window.rect = new Rect (
+					//window.rect.x - (((_defaultRectSize.x * _zoomLevel) - window.rect.width) / 2),
+					//window.rect.y - (((_defaultRectSize.y * _zoomLevel) - window.rect.height) / 2),
+					window.rect.x + ((window.rect.width - (_defaultRectSize.x * _zoomLevel)) / 2),
+					window.rect.y + ((window.rect.height - (_defaultRectSize.y * _zoomLevel)) / 2),
+					_defaultRectSize.x * _zoomLevel,
+					_defaultRectSize.y * _zoomLevel
+				);
+			}
+			Repaint ();
+		}
+	}
+
+	float _zoomSensitivity = 3f;
 	float _xScale = 0f;
 	float _yScale = 0f;
 	float _xDisplacement = 0f;
@@ -227,10 +266,10 @@ public class DialogueEditor : EditorWindow {
 	float _minYScale = 75f;
 	float _maxXScale = 400f;
 	float _maxYScale = 300f;
-	Vector2 _defaultRectSize = Vector2.zero;
+
 	Vector2 _winPos = Vector2.zero;
 
-	void Zoom(){
+	void ZoomOld(){
 		Event e = Event.current;
 		if (e.type == EventType.scrollWheel) {
 
