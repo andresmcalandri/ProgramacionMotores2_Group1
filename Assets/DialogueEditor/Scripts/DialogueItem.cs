@@ -13,6 +13,9 @@ public class DialogueItem : ScriptableObject {
 	[HideInInspector]
 	public Rect rect = Rect.zero;
 
+	[HideInInspector]
+	public Rect orgRect = Rect.zero;
+
 	public string name = "";
 	public string locKey = "";
 

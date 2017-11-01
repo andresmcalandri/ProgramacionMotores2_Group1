@@ -40,8 +40,7 @@ public class DialogueEditor : EditorWindow {
         {
 			controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
         }
-
-		//ZoomOld ();
+			
 		Zoom ();
         EndWindows();
 
@@ -101,15 +100,21 @@ public class DialogueEditor : EditorWindow {
 			
 		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this);
 		//Default Dialogue Window Rect Size Reference for Zooming
-		_defaultRectSize = new Vector2 (newWindow.rect.width, newWindow.rect.height);
-		_defaultRectPos = new Vector2 (newWindow.rect.x, newWindow.rect.y);
+		newWindow.orgRect = new Rect(
+			newWindow.rect.x, 
+			newWindow.rect.y,
+			newWindow.rect.width, 
+			newWindow.rect.height
+		);
 		//
+		//Adapt to zoomed size if adding a window after zooming
 		newWindow.rect = new Rect (
 			newWindow.rect.x,
 			newWindow.rect.y,
-			_defaultRectSize.x * _zoomLevel,
-			_defaultRectSize.y * _zoomLevel
+			newWindow.rect.width * _zoomLevel,
+			newWindow.rect.height * _zoomLevel
 		);
+		//
 		controls.Add(newWindow);
     }
 
@@ -229,12 +234,22 @@ public class DialogueEditor : EditorWindow {
 	const float _minZoom = 0.6f;
 	const float _maxZoom = 3f;
 	const float _zoomSensi = 0.1f;
-	Vector2 _defaultRectSize = Vector2.zero;
-	Vector2 _defaultRectPos = Vector2.zero;
 
 	void Zoom(){
-		Debug.Log ("Zoom Level: " + _zoomLevel);
+		//Debug.Log ("Zoom Level: " + _zoomLevel);
 		Event e = Event.current;
+
+		if (e.type == EventType.MouseUp) {
+			foreach (var window in controls) {
+				window.orgRect = new Rect (
+					window.rect.x,
+					window.rect.y,
+					window.orgRect.width,
+					window.orgRect.height
+				);
+			}
+		}
+
 		if (e.type == EventType.scrollWheel) {
 			if (-e.delta.y > 0f) {
 				_zoomLevel += _zoomSensi;
@@ -243,77 +258,19 @@ public class DialogueEditor : EditorWindow {
 				_zoomLevel -= _zoomSensi;
 				_zoomLevel = Mathf.Clamp (_zoomLevel, _minZoom, _maxZoom);
 			}
+			//Debug.Log ("Zoom Level: " + _zoomLevel);
 			foreach (var window in controls) {
+				//Debug.Log ("X Coord: " + window.rect.x);
+				//Debug.Log ("X Displacement: " + (window.rect.width - (_defaultRectSize.x * _zoomLevel)) /2);
 				window.rect = new Rect (
-					//window.rect.x - (((_defaultRectSize.x * _zoomLevel) - window.rect.width) / 2),
-					//window.rect.y - (((_defaultRectSize.y * _zoomLevel) - window.rect.height) / 2),
-					window.rect.x + ((window.rect.width - (_defaultRectSize.x * _zoomLevel)) / 2),
-					window.rect.y + ((window.rect.height - (_defaultRectSize.y * _zoomLevel)) / 2),
-					_defaultRectSize.x * _zoomLevel,
-					_defaultRectSize.y * _zoomLevel
+					window.orgRect.x * _zoomLevel,
+					window.orgRect.y * _zoomLevel,
+					window.orgRect.width * _zoomLevel,
+					window.orgRect.height * _zoomLevel
 				);
 			}
 			Repaint ();
 		}
-	}
-
-	float _zoomSensitivity = 3f;
-	float _xScale = 0f;
-	float _yScale = 0f;
-	float _xDisplacement = 0f;
-	float _yDisplacement = 0f;
-	float _minXScale = 100f;
-	float _minYScale = 75f;
-	float _maxXScale = 400f;
-	float _maxYScale = 300f;
-
-	Vector2 _winPos = Vector2.zero;
-
-	void ZoomOld(){
-		Event e = Event.current;
-		if (e.type == EventType.scrollWheel) {
-
-			if (-e.delta.y > 0f) {
-				_xScale = _zoomSensitivity;
-				_yScale = _zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
-                gridZoom++;
-			} else if (-e.delta.y < 0f) {
-				_xScale = -_zoomSensitivity;
-				_yScale = -_zoomSensitivity * (_defaultRectSize.y / _defaultRectSize.x);
-                gridZoom--;
-            }
-
-			foreach (var window in controls) {
-				if (window.rect.width < _maxXScale && window.rect.height < _maxYScale &&
-				    window.rect.width > _minXScale && window.rect.height > _minYScale) {
-
-					_winPos = new Vector2 (window.rect.x + (window.rect.width / 2f), window.rect.y + (window.rect.height / 2f));
-
-					if (e.mousePosition.x < _winPos.x) {
-						_xDisplacement = _xScale;
-					} else if (e.mousePosition.x > _winPos.x) {
-						_xDisplacement = -_xScale;
-					}
-
-					if (e.mousePosition.y < _winPos.y) {
-						_yDisplacement = _yScale;
-					} else if (e.mousePosition.y > _winPos.y) {
-						_yDisplacement = -_yScale;
-					}
-
-				} else {
-					_xDisplacement = 0f;
-					_yDisplacement = 0f;
-				}
-				window.rect = new Rect (
-					window.rect.x + _xDisplacement * Vector2.Distance(e.mousePosition, window.rect.position) / window.rect.width,
-					window.rect.y + _yDisplacement * Vector2.Distance(e.mousePosition, window.rect.position) / window.rect.height,
-					Mathf.Clamp (window.rect.width + _xScale, _minXScale, _maxXScale),
-					Mathf.Clamp (window.rect.height + _yScale, _minYScale, _maxYScale)
-				);
-			}
-		}
-		Repaint ();
 	}
 	//END ZOOM CONTROL
 }

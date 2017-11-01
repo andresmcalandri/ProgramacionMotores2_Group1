@@ -29,6 +29,15 @@ public class DialogueItemWindow  {
         }
     }
 
+	public Rect orgRect {
+		get {
+			return _dialogue.orgRect;
+		}
+		set { 
+			_dialogue.orgRect = value;
+		}
+	}
+
 	public DialogueItemWindow(DialogueItem dialogueItem, DialogueEditor parent) 
 	{
 		_dialogue = dialogueItem;
