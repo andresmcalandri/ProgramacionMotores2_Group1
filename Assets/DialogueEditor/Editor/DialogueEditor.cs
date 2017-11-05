@@ -84,6 +84,12 @@ public class DialogueEditor : EditorWindow {
             menu.AddDisabledItem(new GUIContent("Save"));
 
         menu.AddItem(new GUIContent("Load"), false, LoadDialogue);
+
+		if (dialogue != null && controls.Count > 0)
+			menu.AddItem(new GUIContent("Localize"), false, LocalizeAll);
+		else
+			menu.AddDisabledItem(new GUIContent("Localize"));
+
         menu.AddSeparator("");
         menu.ShowAsContext();
     }
@@ -199,6 +205,13 @@ public class DialogueEditor : EditorWindow {
 		itemsToDelete.Clear ();
 
         AssetDatabase.SaveAssets();
+	}
+
+	void LocalizeAll()
+	{
+		foreach (DialogueItemWindow control in controls) {
+			control.LocalizeText ();
+		}
 	}
 
     void BeginGrid()

@@ -9,15 +9,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70f306083dec64041a114f2cbe6411e0, type: 3}
-  m_Name: 4
+  m_Name: 7
   m_EditorClassIdentifier: 
-  id: 4
+  id: 7
   rect:
     serializedVersion: 2
-    x: 417.90573
-    y: 271.28726
-    width: 164
-    height: 123
+    x: 425
+    y: 140
+    width: 200
+    height: 150
+  orgRect:
+    serializedVersion: 2
+    x: 10
+    y: 10
+    width: 200
+    height: 150
   name: 
-  locKey: 
+  locKey: text_test_02
   answers: 

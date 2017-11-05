@@ -1,0 +1,6 @@
+text_test_01 = Esto es una prueba 01
+text_test_02 = Esto es una prueba 02
+text_test_03 = Esto es una prueba 03
+text_test_04 = Esto es una prueba 04
+text_test_05 = Esto es una prueba 05
+text_test_06 = Esto es una prueba 06

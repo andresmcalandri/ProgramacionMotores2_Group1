@@ -8,6 +8,9 @@ public class DialogueItemWindow  {
 	DialogueEditor _parent;
 	DialogueItem _dialogue;
 
+	string _localizedText;
+	bool triedToLocalize = false;
+
 	public int id {
 		get {
 			return _dialogue.id;
@@ -55,9 +58,24 @@ public class DialogueItemWindow  {
 			_parent.DeleteControl(this);
 		}
 
-		if (GUI.Button(new Rect(10, 20, 100, 20), "Hello World"))
-			Debug.Log("Hello World");
+		dialogue.locKey = EditorGUILayout.TextField ("Localization Key", dialogue.locKey);
+
+		if (!triedToLocalize) {
+			_localizedText = LocalizationManager.Localize (dialogue.locKey);
+			if (_localizedText == dialogue.locKey && !string.IsNullOrEmpty(dialogue.locKey))
+				EditorUtility.DisplayDialog ("Localization Error", "Couldn't find key " + dialogue.locKey, "Ok");
+
+			triedToLocalize = true;
+		}
+			
+		EditorGUILayout.LabelField (_localizedText);
 
 		GUI.DragWindow(new Rect(0, 0, 10000, 10000));
+	}
+
+
+	public void LocalizeText()
+	{
+		triedToLocalize = false;
 	}
 }
