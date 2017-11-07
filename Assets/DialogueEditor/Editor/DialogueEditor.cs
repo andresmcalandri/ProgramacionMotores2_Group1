@@ -35,13 +35,13 @@ public class DialogueEditor : EditorWindow {
         DrawContextualMenus();
         OnGUIDialogue();
 
+		Zoom ();
+
         BeginWindows();
         for (int i = 0; i < controls.Count; i++)
         {
 			controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
         }
-			
-		Zoom ();
         EndWindows();
 
         BeginGrid();
@@ -244,37 +244,63 @@ public class DialogueEditor : EditorWindow {
     //START ZOOM CONTROL
 
 	float _zoomLevel = 1;
-	const float _minZoom = 0.6f;
-	const float _maxZoom = 3f;
-	const float _zoomSensi = 0.1f;
+	DialogueItemWindow _focusedWindow;
+	const float MIN_ZOOM = 0.6f;
+	const float MAX_ZOOM = 3f;
+	const float ZOOM_SENSI = 0.1f;
+	const float DISPL_RATE = 0.1f;
 
 	void Zoom(){
-		//Debug.Log ("Zoom Level: " + _zoomLevel);
+		_focusedWindow = null;
 		Event e = Event.current;
-
 		if (e.type == EventType.MouseUp) {
 			foreach (var window in controls) {
 				window.orgRect = new Rect (
-					window.rect.x,
-					window.rect.y,
+					window.rect.x / _zoomLevel,
+					window.rect.y / _zoomLevel,
 					window.orgRect.width,
 					window.orgRect.height
 				);
 			}
 		}
+		if (e.type == EventType.MouseDrag) {
+			foreach (var window in controls) {
+				if (e.mousePosition.x > window.rect.x &&
+				    e.mousePosition.x < window.rect.x + window.rect.width &&
+				    e.mousePosition.y > window.rect.y &&
+				    e.mousePosition.y < window.rect.y + window.rect.height) {
+					_focusedWindow = window;
+					break;
+				}
+			}
+			if (_focusedWindow == null){
+				foreach (var window in controls) {
+					window.orgRect = new Rect (
+						window.orgRect.x + e.delta.x,
+						window.orgRect.y + e.delta.y,
+						window.orgRect.width,
+						window.orgRect.height
+					);
 
+					window.rect = new Rect (
+						window.orgRect.x * _zoomLevel,
+						window.orgRect.y * _zoomLevel,
+						window.rect.width,
+						window.rect.height
+					);
+				}
+				Repaint ();
+			}
+		}
 		if (e.type == EventType.scrollWheel) {
 			if (-e.delta.y > 0f) {
-				_zoomLevel += _zoomSensi;
-				_zoomLevel = Mathf.Clamp (_zoomLevel, _minZoom, _maxZoom);
+				_zoomLevel += ZOOM_SENSI;
+				_zoomLevel = Mathf.Clamp (_zoomLevel, MIN_ZOOM, MAX_ZOOM);
 			} else if (-e.delta.y < 0f) {
-				_zoomLevel -= _zoomSensi;
-				_zoomLevel = Mathf.Clamp (_zoomLevel, _minZoom, _maxZoom);
+				_zoomLevel -= ZOOM_SENSI;
+				_zoomLevel = Mathf.Clamp (_zoomLevel, MIN_ZOOM, MAX_ZOOM);
 			}
-			//Debug.Log ("Zoom Level: " + _zoomLevel);
 			foreach (var window in controls) {
-				//Debug.Log ("X Coord: " + window.rect.x);
-				//Debug.Log ("X Displacement: " + (window.rect.width - (_defaultRectSize.x * _zoomLevel)) /2);
 				window.rect = new Rect (
 					window.orgRect.x * _zoomLevel,
 					window.orgRect.y * _zoomLevel,
