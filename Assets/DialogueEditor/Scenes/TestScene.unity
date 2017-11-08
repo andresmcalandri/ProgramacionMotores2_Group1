@@ -347,6 +347,27 @@ Prefab:
       propertyPath: m_Name
       value: Dialogue Cavnas
       objectReference: {fileID: 0}
+    - target: {fileID: 114525297388708890, guid: 6885ac61eb726054ea2e30244d266635,
+        type: 2}
+      propertyPath: m_FontData.m_FontStyle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114054579521308210, guid: 6885ac61eb726054ea2e30244d266635,
+        type: 2}
+      propertyPath: initialDialogue
+      value: 
+      objectReference: {fileID: 11400000, guid: a9585d6edc335254ea9857926b9493bc,
+        type: 2}
+    - target: {fileID: 224970661021482006, guid: 6885ac61eb726054ea2e30244d266635,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 700
+      objectReference: {fileID: 0}
+    - target: {fileID: 224970661021482006, guid: 6885ac61eb726054ea2e30244d266635,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: -100
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6885ac61eb726054ea2e30244d266635, type: 2}
   m_IsPrefabParent: 0

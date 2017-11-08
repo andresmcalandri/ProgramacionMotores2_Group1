@@ -16,6 +16,8 @@ public class DialogueManager : MonoBehaviour {
     public Button optionB;
 
 
+
+
     void Start ()
     {
         if (initialDialogue != null) PlayDialogue(initialDialogue);
@@ -30,16 +32,52 @@ public class DialogueManager : MonoBehaviour {
         //In case it's a question the system should spawn as many buttons as necesary and link to the required node
 
         //TODO: Add characterName to the DialogueItem
-        characterName.text = "";
-        dialogueText.text = dialogue.name;
+        
+        characterName.text = dialogue.name+":";
+        dialogueText.text = LocalizationManager.Localize(dialogue.locKey);
 
-        if(dialogue.answers.Count==0)
+        if (dialogue.answers.Count<2)
         {
             optionA.gameObject.SetActive(false);
             optionB.gameObject.SetActive(false);
         }
+        else
+        {
+            optionA.gameObject.SetActive(true);
+            optionB.gameObject.SetActive(true);
+        }
+
 
     }
+
+    void EndDialogue()
+    {
+        gameObject.SetActive(false);
+        /*
+        characterName.gameObject.SetActive(false);
+        dialogueText.gameObject.SetActive(false);
+        optionA.gameObject.SetActive(false);
+        optionB.gameObject.SetActive(false);
+        */
+        Debug.Log("End of the Dialogue");
+    }
+
+
+    void Update()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            if(currentDialogue.nextDialogue!=null)
+            {
+                PlayDialogue(currentDialogue.nextDialogue);
+            }
+            else
+            {
+                EndDialogue();
+            }
+        }
+    }
+
 
 
 }

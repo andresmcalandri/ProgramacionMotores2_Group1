@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70f306083dec64041a114f2cbe6411e0, type: 3}
-  m_Name: 6
+  m_Name: 1
   m_EditorClassIdentifier: 
   id: 6
   rect:
@@ -25,5 +25,6 @@ MonoBehaviour:
     width: 200
     height: 150
   name: Test
-  locKey: text_test_01
-  answers: 00000000
+  locKey: text1
+  nextDialogue: {fileID: 11400000, guid: 143361a35cc7edd4bb9e3e782b9516ae, type: 2}
+  answers: 

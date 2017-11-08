@@ -18,6 +18,7 @@ public class DialogueItem : ScriptableObject {
 
 	public string name = "";
 	public string locKey = "";
+    public DialogueItem nextDialogue;
 
 	/// <summary>
 	/// The answers. If the answers are null, count is 0 or an answer is null then its the end of the line.
