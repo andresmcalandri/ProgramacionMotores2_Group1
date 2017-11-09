@@ -30,21 +30,99 @@ public class DialogueEditor : EditorWindow {
     int gridZoom = 0;
     Vector2 offset = new Vector2();
 
+    // Groups
+    Rect _group1;
+    Rect _group2;
+
+    // Inspector   
+    string _dialogue;
+    DialogueItemWindow _dialogueItemWindow;
+
     void OnGUI()
     {
+        ///////// GROUP 1 /////////////
+
+        _group1 = new Rect(position);
+        _group1.width *= .85f;
+        _group1.position -= position.position;
+
+        GUI.BeginGroup(_group1);
         DrawContextualMenus();
         OnGUIDialogue();
 
-		Zoom ();
+        Zoom();
 
         BeginWindows();
         for (int i = 0; i < controls.Count; i++)
         {
-			controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
+            controls[i].rect = GUI.Window(i, controls[i].rect, controls[i].Draw, "Window_" + i);
         }
         EndWindows();
 
         BeginGrid();
+        SelectWindow();
+        GUI.EndGroup();
+
+        ///////// GROUP 2 /////////////
+
+        _group2 = new Rect(position);
+        _group2.width *= .30f;
+        _group2.position += new Vector2(position.width * 0.85f, 0);
+        _group2.position -= position.position;
+
+        GUI.BeginGroup(_group2); 
+        Inspector();       
+        GUI.EndGroup();
+
+
+
+    }
+
+    void SelectWindow()
+    {
+        for (int i = 0; i < controls.Count; i++)
+        {
+
+            if (controls[i].rect.Contains(Event.current.mousePosition))
+            {
+                _dialogueItemWindow = controls[i];
+            }    
+        }
+
+    }
+
+
+    void Inspector()
+    {
+        if(_dialogueItemWindow != null)
+        {
+            GUILayout.Label("Name", EditorStyles.boldLabel);
+            _dialogueItemWindow.dialogue.name = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.name, GUILayout.Width(100));
+
+            EditorGUILayout.Space();
+
+            GUILayout.Label("Localization Key", EditorStyles.boldLabel);
+            _dialogueItemWindow.dialogue.locKey = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.locKey, GUILayout.Width(100));
+
+            EditorGUILayout.Space();
+
+            GUILayout.Label("Id", EditorStyles.boldLabel);
+            _dialogueItemWindow.dialogue.id = EditorGUILayout.IntField("", _dialogueItemWindow.dialogue.id, GUILayout.Width(100));
+
+            EditorGUILayout.Space();
+
+            GUILayout.Label("Dialogue", EditorStyles.boldLabel);
+            if (GUILayout.Button("Localize", GUILayout.ExpandWidth(false))) _dialogue = LocalizationManager.Localize(_dialogueItemWindow.dialogue.locKey);
+            _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(150), GUILayout.MaxHeight(100));
+
+         /*   EditorGUILayout.Space();
+            int current = 0;
+            string answer;
+            GUILayout.Label("Answers", EditorStyles.boldLabel);
+            answer = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.answers[current], GUILayout.MaxWidth(150), GUILayout.MaxHeight(100));*/
+
+
+        }
 
     }
 
@@ -57,9 +135,9 @@ public class DialogueEditor : EditorWindow {
     {
         if (dialogue != null)
         {
-            dialogue.name = EditorGUILayout.TextField("Name", dialogue.name);
+            dialogue.name = EditorGUILayout.TextField("Name", dialogue.name, GUILayout.Width(350));
 
-            if (GUILayout.Button("Create Window"))
+            if (GUILayout.Button("Create Window", GUILayout.ExpandWidth(false)))
                 CreateControl();
         }
     }
