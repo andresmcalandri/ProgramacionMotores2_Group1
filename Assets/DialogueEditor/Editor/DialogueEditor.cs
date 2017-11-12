@@ -59,6 +59,8 @@ public class DialogueEditor : EditorWindow {
         }
         EndWindows();
 
+		DrawConnectors ();
+
         BeginGrid();
         SelectWindow();
         GUI.EndGroup();
@@ -73,10 +75,67 @@ public class DialogueEditor : EditorWindow {
         GUI.BeginGroup(_group2); 
         Inspector();       
         GUI.EndGroup();
-
-
-
     }
+
+	void DrawConnectors()
+	{
+		DialogueItemWindow itemWindow;
+		Rect toRect;
+		Rect fromRect;
+
+		for (int i = 0; i < controls.Count; i++)
+		{
+			itemWindow = controls [i];
+			Handles.BeginGUI ();
+
+			Handles.color = Color.red;
+
+			for (int j = 0; j < itemWindow.dialogue.answers.Count; j++) {
+				toRect = GetWindowAnswerRect (itemWindow.dialogue.id, itemWindow.dialogue.answers [j]);
+				fromRect = itemWindow.GetQuestionRect(itemWindow.dialogue.answers[j]);
+				Handles.DrawLine (new Vector2 (fromRect.x + (fromRect.width / 2), 
+					fromRect.y + (fromRect.height / 2)), 
+					new Vector2(toRect.x + (toRect.width / 2), toRect.y + (toRect.height / 2)));
+			}
+
+
+			if (_connectingWindow != null) {
+				fromRect = _connectingWindow.GetQuestionRect (-1);
+				Handles.DrawLine (new Vector2 (fromRect.x + (fromRect.width / 2), 
+					fromRect.y + (fromRect.height / 2)), 
+					Event.current.mousePosition);
+			}
+
+			Repaint ();
+
+			Handles.EndGUI ();
+		}
+	}
+		
+	DialogueItemWindow _connectingWindow = null;
+	void OnConnectionClicked(DialogueItemWindow dialogueItem)
+	{
+		if (_connectingWindow == null) {
+			_connectingWindow = dialogueItem;
+		} else {
+			if (dialogueItem.id != _connectingWindow.id && !_connectingWindow.dialogue.answers.Contains (dialogueItem.id)) {
+				_connectingWindow.dialogue.AddAnswer (dialogueItem.dialogue.id);
+			}
+
+			_connectingWindow = null;
+		}
+	}
+
+	Rect GetWindowAnswerRect(int dialogueId, int answerId)
+	{
+		for (int i = 0; i < controls.Count; i++) {
+			if (controls [i].dialogue.id == answerId) {
+				return controls [i].GetAnswerRect (dialogueId);
+			}
+		}
+
+		return Rect.zero;
+	}
 
     void SelectWindow()
     {
@@ -182,7 +241,7 @@ public class DialogueEditor : EditorWindow {
 			dialogueItem.id = dialogueCount++;
 		}
 			
-		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this);
+		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this, OnConnectionClicked);
 		//Default Dialogue Window Rect Size Reference for Zooming
 		newWindow.orgRect = new Rect(
 			newWindow.rect.x, 
@@ -199,6 +258,7 @@ public class DialogueEditor : EditorWindow {
 			newWindow.rect.height * _zoomLevel
 		);
 		//
+
 		controls.Add(newWindow);
     }
 
@@ -317,7 +377,6 @@ public class DialogueEditor : EditorWindow {
         }
         Handles.EndGUI();
     }
-
 
     //START ZOOM CONTROL
 
