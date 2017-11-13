@@ -33,13 +33,17 @@ public class DialogueEditor : EditorWindow {
     // Groups
     Rect _group1;
     Rect _group2;
+    Rect _rect;
 
     // Inspector   
     string _dialogue;
+    string _name;
+    string _lockey;
+    int _id;
     DialogueItemWindow _dialogueItemWindow;
 
     void OnGUI()
-    {
+    {   
         ///////// GROUP 1 /////////////
 
         _group1 = new Rect(position);
@@ -71,13 +75,16 @@ public class DialogueEditor : EditorWindow {
         _group2.width *= .30f;
         _group2.position += new Vector2(position.width * 0.85f, 0);
         _group2.position -= position.position;
+        GUI.Box(_group2, Texture2D.whiteTexture);
 
         GUI.BeginGroup(_group2); 
         Inspector();       
         GUI.EndGroup();
+
+     
     }
 
-	void DrawConnectors()
+    void DrawConnectors()
 	{
 		DialogueItemWindow itemWindow;
 		Rect toRect;
@@ -139,50 +146,82 @@ public class DialogueEditor : EditorWindow {
 
     void SelectWindow()
     {
-        for (int i = 0; i < controls.Count; i++)
+        
+
+
+
+       for (int i = 0; i < controls.Count; i++)
         {
 
             if (controls[i].rect.Contains(Event.current.mousePosition))
             {
                 _dialogueItemWindow = controls[i];
-            }    
+                LoadInfoNode();
+            }
+            else
+            {
+              //  _dialogueItemWindow = null;
+            }
+            
         }
-
     }
 
 
     void Inspector()
     {
-        if(_dialogueItemWindow != null)
+        if (_dialogueItemWindow != null)
         {
-            GUILayout.Label("Name", EditorStyles.boldLabel);
-            _dialogueItemWindow.dialogue.name = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.name, GUILayout.Width(100));
-
+            GUILayout.TextArea("Node Info", GUILayout.ExpandWidth(false));
+            
             EditorGUILayout.Space();
+
+
+            GUILayout.Label("Name", EditorStyles.boldLabel);
+            _name = EditorGUILayout.TextField("", _name, GUILayout.Width(100));
+            EditorGUILayout.Space();
+
 
             GUILayout.Label("Localization Key", EditorStyles.boldLabel);
-            _dialogueItemWindow.dialogue.locKey = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.locKey, GUILayout.Width(100));
+             _lockey = EditorGUILayout.TextField("", _lockey, GUILayout.Width(100));
+
 
             EditorGUILayout.Space();
 
-            GUILayout.Label("Id", EditorStyles.boldLabel);
-            _dialogueItemWindow.dialogue.id = EditorGUILayout.IntField("", _dialogueItemWindow.dialogue.id, GUILayout.Width(100));
+            GUILayout.Label("Id: " + _dialogueItemWindow.dialogue.id, EditorStyles.boldLabel);
+            EditorGUILayout.Space();
 
+            int _amountAnswers = _dialogueItemWindow.dialogue.answers.Count + 1;
+            GUILayout.Label("Amount Answers: " + _amountAnswers, EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
             GUILayout.Label("Dialogue", EditorStyles.boldLabel);
             if (GUILayout.Button("Localize", GUILayout.ExpandWidth(false))) _dialogue = LocalizationManager.Localize(_dialogueItemWindow.dialogue.locKey);
             _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(150), GUILayout.MaxHeight(100));
 
-         /*   EditorGUILayout.Space();
-            int current = 0;
-            string answer;
-            GUILayout.Label("Answers", EditorStyles.boldLabel);
-            answer = EditorGUILayout.TextField("", _dialogueItemWindow.dialogue.answers[current], GUILayout.MaxWidth(150), GUILayout.MaxHeight(100));*/
 
+            if (GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
+            {
 
+                SaveInfoNode();
+                _name = " ";
+                _lockey = " ";
+                _id = 0;
+                _dialogue = " ";
+            }
         }
 
+    }
+
+    void SaveInfoNode()
+    {
+        _dialogueItemWindow.dialogue.name = _name;
+        _dialogueItemWindow.dialogue.locKey = _lockey;
+    }
+
+    void LoadInfoNode()
+    {
+        _name = _dialogueItemWindow.dialogue.name;
+        _lockey = _dialogueItemWindow.dialogue.locKey;
     }
 
     void CreateDialogue()
