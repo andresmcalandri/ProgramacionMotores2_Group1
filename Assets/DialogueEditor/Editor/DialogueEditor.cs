@@ -421,9 +421,10 @@ public class DialogueEditor : EditorWindow {
 
 	float _zoomLevel = 1;
 	DialogueItemWindow _focusedWindow;
+	Rect _zoomTo;
 	const float MIN_ZOOM = 0.6f;
 	const float MAX_ZOOM = 3f;
-	const float ZOOM_SENSI = 0.1f;
+	const float ZOOM_SMOOTH = 100f;
 	const float DISPL_RATE = 0.1f;
 
 	void Zoom(){
@@ -469,13 +470,9 @@ public class DialogueEditor : EditorWindow {
 			}
 		}
 		if (e.type == EventType.scrollWheel) {
-			if (-e.delta.y > 0f) {
-				_zoomLevel += ZOOM_SENSI;
-				_zoomLevel = Mathf.Clamp (_zoomLevel, MIN_ZOOM, MAX_ZOOM);
-			} else if (-e.delta.y < 0f) {
-				_zoomLevel -= ZOOM_SENSI;
-				_zoomLevel = Mathf.Clamp (_zoomLevel, MIN_ZOOM, MAX_ZOOM);
-			}
+			_zoomLevel -= e.delta.y / 3f / ZOOM_SMOOTH;
+			_zoomLevel = Mathf.Clamp (_zoomLevel, MIN_ZOOM, MAX_ZOOM);
+
 			foreach (var window in controls) {
 				window.rect = new Rect (
 					window.orgRect.x * _zoomLevel,
