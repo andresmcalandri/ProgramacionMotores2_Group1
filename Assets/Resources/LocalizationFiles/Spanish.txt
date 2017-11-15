@@ -3,3 +3,10 @@ text2 = Esta traducido al español
 text3 = Es una prueba de nuestro sistema de dialogos
 text4 = Muchas gracias por probarlo
 text5 = ¡Saludos!
+
+
+test1= Ahora el sistema tiene multiples respuestas
+test2= Seleccionaste la primer respuesta
+test3= Seleccionaste la segunda respuesta
+ans1= Esta es la primera
+ans2= Esta es la segunda

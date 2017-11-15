@@ -3,3 +3,9 @@ text2 = This is translated to English
 text3 = It's a test of our own Dialogue System
 text4 = Thanks for testing it!
 text5 = Goodbye!
+
+test1= Now the system supports multiple answers
+test2= You selected the first answer
+test3= You selected the second answer
+ans1= Like this one
+ans2= And this one
