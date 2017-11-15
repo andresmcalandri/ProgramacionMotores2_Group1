@@ -265,6 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06ba665db1769134ba55b08d52a8fd4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentFolder: 
   initialDialogue: {fileID: 11400000, guid: a9585d6edc335254ea9857926b9493bc, type: 2}
   characterName: {fileID: 114525297388708890}
   dialogueText: {fileID: 114033308508833690}

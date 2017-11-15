@@ -157,6 +157,7 @@ public class DialogueEditor : EditorWindow {
             {
                 _dialogueItemWindow = controls[i];
                 LoadInfoNode();
+                Repaint();
             }
             else
             {
@@ -171,7 +172,7 @@ public class DialogueEditor : EditorWindow {
     {
         if (_dialogueItemWindow != null)
         {
-            GUILayout.TextArea("Node Info", GUILayout.ExpandWidth(false));
+            GUILayout.TextArea("    Node Info    ", GUILayout.ExpandWidth(false));
             
             EditorGUILayout.Space();
 
@@ -190,18 +191,15 @@ public class DialogueEditor : EditorWindow {
             GUILayout.Label("Id: " + _dialogueItemWindow.dialogue.id, EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            int _amountAnswers = _dialogueItemWindow.dialogue.answers.Count + 1;
-            GUILayout.Label("Amount Answers: " + _amountAnswers, EditorStyles.boldLabel);
+            GUILayout.Label("Amount Answers: " + _dialogueItemWindow.dialogue.answers.Count, EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
             GUILayout.Label("Dialogue", EditorStyles.boldLabel);
             if (GUILayout.Button("Localize", GUILayout.ExpandWidth(false))) _dialogue = LocalizationManager.Localize(_dialogueItemWindow.dialogue.locKey);
-            _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(150), GUILayout.MaxHeight(100));
-
+            _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(200), GUILayout.MaxHeight(100));
 
             if (GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
             {
-
                 SaveInfoNode();
                 _name = " ";
                 _lockey = " ";
