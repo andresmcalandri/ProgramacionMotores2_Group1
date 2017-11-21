@@ -41,9 +41,15 @@ public class DialogueEditor : EditorWindow {
     string _lockey;
     int _id;
     DialogueItemWindow _dialogueItemWindow;
+    bool movePosition;
+    float posGroup2;
+    float sizeGroup2;
 
     void OnGUI()
-    {   
+    {
+        minSize = new Vector2(500, 500);
+        PositionGroups2();
+
         ///////// GROUP 1 /////////////
 
         _group1 = new Rect(position);
@@ -63,7 +69,7 @@ public class DialogueEditor : EditorWindow {
         }
         EndWindows();
 
-		DrawConnectors ();
+        DrawConnectors();
 
         BeginGrid();
         SelectWindow();
@@ -73,16 +79,45 @@ public class DialogueEditor : EditorWindow {
 
         _group2 = new Rect(position);
         _group2.width *= .30f;
-        _group2.position += new Vector2(position.width * 0.85f, 0);
+        _group2.size = new Vector2(maxSize.x, _group2.size.y);
+        _group2.position += new Vector2(posGroup2, 0);
         _group2.position -= position.position;
         GUI.Box(_group2, Texture2D.whiteTexture);
-
-        GUI.BeginGroup(_group2); 
-        Inspector();       
+        GUI.BeginGroup(_group2);
+        Inspector();
         GUI.EndGroup();
 
-     
+        ///////// Rect  /////////////
+
+        _rect = new Rect(position);
+        _rect.width *= .004f;
+        _rect.min.Set(500, _rect.height);
+        _rect.position += new Vector2(posGroup2, 0);
+        _rect.position -= position.position;
+        GUI.Box(_rect, Texture2D.whiteTexture);
     }
+    void Awake()
+    {
+        posGroup2 = position.width * 2.5f;
+        sizeGroup2 = position.width * .30f;
+    }
+
+    void PositionGroups2()
+    {
+        Event e = Event.current;      
+
+        if (_rect.Contains(Event.current.mousePosition) && e.type == EventType.MouseDown) movePosition = true;
+        if (_rect.Contains(Event.current.mousePosition) && e.type == EventType.MouseUp) movePosition = false;
+       
+        if (movePosition)
+        {
+            posGroup2 = e.mousePosition.x;
+            sizeGroup2 = e.mousePosition.x;
+        }
+
+        Repaint();
+    }
+
 
     void DrawConnectors()
 	{
@@ -146,10 +181,6 @@ public class DialogueEditor : EditorWindow {
 
     void SelectWindow()
     {
-        
-
-
-
        for (int i = 0; i < controls.Count; i++)
         {
 
@@ -196,7 +227,7 @@ public class DialogueEditor : EditorWindow {
 
             GUILayout.Label("Dialogue", EditorStyles.boldLabel);
             if (GUILayout.Button("Localize", GUILayout.ExpandWidth(false))) _dialogue = LocalizationManager.Localize(_dialogueItemWindow.dialogue.locKey);
-            _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(200), GUILayout.MaxHeight(100));
+            _dialogue = EditorGUILayout.TextField("", _dialogue, GUILayout.MaxWidth(100), GUILayout.MaxHeight(100));
 
             if (GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
             {
