@@ -280,19 +280,23 @@ public class DialogueEditor : EditorWindow {
 			
 		DialogueItemWindow newWindow = new DialogueItemWindow (dialogueItem, this, OnConnectionClicked);
 		//Default Dialogue Window Rect Size Reference for Zooming
-		newWindow.orgRect = new Rect(
-			newWindow.rect.x, 
-			newWindow.rect.y,
-			newWindow.rect.width, 
-			newWindow.rect.height
-		);
+		if(newWindow.orgRect == Rect.zero)
+		{
+			Debug.Log ("Building OrgRect");
+			newWindow.orgRect = new Rect(
+				newWindow.rect.x, 
+				newWindow.rect.y,
+				newWindow.rect.width, 
+				newWindow.rect.height
+				);
+		}
 		//
 		//Adapt to zoomed size if adding a window after zooming
 		newWindow.rect = new Rect (
-			newWindow.rect.x,
-			newWindow.rect.y,
-			newWindow.rect.width * _zoomLevel,
-			newWindow.rect.height * _zoomLevel
+			newWindow.orgRect.x * _zoomLevel,
+			newWindow.orgRect.y * _zoomLevel,
+			newWindow.orgRect.width * _zoomLevel,
+			newWindow.orgRect.height * _zoomLevel
 		);
 		//
 
@@ -333,12 +337,13 @@ public class DialogueEditor : EditorWindow {
                 dialogueItem = AssetDatabase.LoadAssetAtPath<DialogueItem>(SAVE_PATH + fileName);
                 if (dialogueItem != null)
                 { 
+					_zoomLevel = dialogueItem.rect.height / dialogueItem.orgRect.height;
                     CreateControl(dialogueItem);
-
                     if (dialogueItem.id > dialogueCount)
                         dialogueCount = dialogueItem.id;
                 }
             }
+			Repaint ();
         }
 	}
 
@@ -376,6 +381,7 @@ public class DialogueEditor : EditorWindow {
 			if (File.Exists (fullPath + ".meta"))
 				File.Delete (fullPath + ".meta");
 		}
+
 
 		itemsToDelete.Clear ();
 
@@ -419,7 +425,6 @@ public class DialogueEditor : EditorWindow {
 
 	float _zoomLevel = 1;
 	DialogueItemWindow _focusedWindow;
-	Rect _zoomTo;
 	const float MIN_ZOOM = 0.6f;
 	const float MAX_ZOOM = 3f;
 	const float ZOOM_SMOOTH = 100f;
