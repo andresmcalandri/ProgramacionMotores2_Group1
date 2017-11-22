@@ -202,17 +202,22 @@ public class DialogueManager : MonoBehaviour {
 
 
         //Change answers
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f) 
         {
-            if (_scrolled+2 < currentDialogue.answers.Count) _scrolled += 1;
-            refreshAnswers();
-            Debug.Log(_scrolled);
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
-        {
+            if (bar.activeInHierarchy == false) return;
+            //if (_scrolled == 0) barBall.transform.position = new Vector3(barBall.transform.position.x, -116, barBall.transform.position.z);
             if (_scrolled > 0) _scrolled -= 1;
             refreshAnswers();
-            Debug.Log(_scrolled);
+            
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f) 
+        {
+            if (bar.activeInHierarchy == false) return;
+            //if (_scrolled + 2 == currentDialogue.answers.Count) barBall.transform.position = new Vector3(barBall.transform.position.x, -180, barBall.transform.position.z);
+            if (_scrolled + 2 < currentDialogue.answers.Count) _scrolled += 1;
+            
+            refreshAnswers();
+            
         }
 
 

@@ -400,15 +400,15 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1823766101990382, guid: 6885ac61eb726054ea2e30244d266635, type: 2}
-      propertyPath: m_Name
-      value: Dialogue Cavnas
-      objectReference: {fileID: 0}
     - target: {fileID: 223831497389853404, guid: 6885ac61eb726054ea2e30244d266635,
         type: 2}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1438848784}
+    - target: {fileID: 1823766101990382, guid: 6885ac61eb726054ea2e30244d266635, type: 2}
+      propertyPath: m_Name
+      value: Dialogue Cavnas
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6885ac61eb726054ea2e30244d266635, type: 2}
   m_IsPrefabParent: 0
