@@ -8,5 +8,9 @@ text5 = ¡Saludos!
 test1= Ahora el sistema tiene multiples respuestas
 test2= Seleccionaste la primer respuesta
 test3= Seleccionaste la segunda respuesta
+test4= Si hay más respuestas que espacio se puede scrollear con la rueda
+test5= Seleccionaste la tercer respuesta
+
 ans1= Esta es la primera
 ans2= Esta es la segunda
+ans3= Esta es la tercera

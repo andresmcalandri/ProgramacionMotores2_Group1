@@ -7,5 +7,9 @@ text5 = Goodbye!
 test1= Now the system supports multiple answers
 test2= You selected the first answer
 test3= You selected the second answer
+test5= You selected the third answer
+test4= If there are more answers than space you can scroll down
+
 ans1= Like this one
 ans2= And this one
+ans3= And a thrid one

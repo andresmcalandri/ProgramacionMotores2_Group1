@@ -8,14 +8,4 @@ public class ButtonAnswer : MonoBehaviour {
     public DialogueItem answerDialogue;
     public Text text;
 
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

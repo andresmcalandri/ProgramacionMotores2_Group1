@@ -16,8 +16,11 @@ public class DialogueManager : MonoBehaviour {
 
     public Button optionA;
     public Button optionB;
-    public Button optionC;
-    public Button optionD;
+
+    public GameObject bar;
+    public GameObject barBall;
+
+    int _scrolled=0;
 
     List<DialogueItem> dialogues;
 
@@ -71,8 +74,7 @@ public class DialogueManager : MonoBehaviour {
         {
             optionA.gameObject.SetActive(false);
             optionB.gameObject.SetActive(false);
-            optionC.gameObject.SetActive(false);
-            optionD.gameObject.SetActive(false);
+            bar.gameObject.SetActive(false);
 
         }
         else if (dialogue.answers.Count == 2)
@@ -100,106 +102,49 @@ public class DialogueManager : MonoBehaviour {
                 }
             }
 
+            bar.gameObject.SetActive(false);
 
-            optionC.gameObject.SetActive(false);
-            optionD.gameObject.SetActive(false);
         }
 
-        else if (dialogue.answers.Count == 3)
+        else if (dialogue.answers.Count > 2)
         {
+
+            //In case more than 2 answers
+
             optionA.gameObject.SetActive(true);
-
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[0])
-                {
-                    optionA.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionA.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-
-
             optionB.gameObject.SetActive(true);
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[1])
-                {
-                    optionB.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionB.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-            optionC.gameObject.SetActive(true);
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[2])
-                {
-                    optionC.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionC.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-
-            optionD.gameObject.SetActive(false);
-        }
-
-
-
-        else if (dialogue.answers.Count == 4)
-        {
-            optionA.gameObject.SetActive(true);
-
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[0])
-                {
-                    optionA.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionA.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-
-
-            optionB.gameObject.SetActive(true);
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[1])
-                {
-                    optionB.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionB.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-            optionC.gameObject.SetActive(true);
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[2])
-                {
-                    optionC.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionC.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-
-            optionD.gameObject.SetActive(true);
-            foreach (DialogueItem dial in dialogues)
-            {
-                if (dial.id == dialogue.answers[3])
-                {
-                    optionD.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
-                    optionD.GetComponent<ButtonAnswer>().answerDialogue = dial;
-                }
-            }
-
-
-        }
-        else if (dialogue.answers.Count>4)
-        {
-            Debug.Log("Current system only supports up to 4 answers");
+            bar.gameObject.SetActive(true);
+            refreshAnswers();
         }
 
     }
+
+
+    void refreshAnswers()
+    {
+        foreach (DialogueItem dial in dialogues)
+        {
+            if (dial.id == currentDialogue.answers[_scrolled])
+            {
+                optionA.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
+                optionA.GetComponent<ButtonAnswer>().answerDialogue = dial;
+            }
+        }
+
+
+        foreach (DialogueItem dial in dialogues)
+        {
+            if (dial.id == currentDialogue.answers[_scrolled+1])
+            {
+                optionB.GetComponent<ButtonAnswer>().text.text = LocalizationManager.Localize(dial.locKey);
+                optionB.GetComponent<ButtonAnswer>().answerDialogue = dial;
+            }
+        }
+
+        
+
+    }
+
 
 
     public void NewDialogueFolder(string dialoguePath)
@@ -234,17 +179,43 @@ public class DialogueManager : MonoBehaviour {
         if(Input.GetMouseButtonDown(0))
         {
             //TODO: Actualmente se pone un answer más del que debería porque cuenta uno demás debido a que cuenta el que viene hacia el mismo
-            if (currentDialogue.answers.Count == 1)
+            if (currentDialogue.answers.Count < 1)
             {
                 EndDialogue();
             }
 
-            if (currentDialogue.answers.Count==2)
+            if (currentDialogue.answers.Count==1)
             {
-                //Debug.Log("Next dialogue");
-                PlayDialogue(currentDialogue.nextDialogue);
+                Debug.Log("Next dialogue");
+                DialogueItem nextDialogue=null;
+                foreach (DialogueItem dial in dialogues)
+                {
+                    if (dial.id == currentDialogue.answers[0])
+                    {
+                        nextDialogue = dial;
+                    }
+                }
+
+                PlayDialogue(nextDialogue);
             }
         }
+
+
+        //Change answers
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
+        {
+            if (_scrolled+2 < currentDialogue.answers.Count) _scrolled += 1;
+            refreshAnswers();
+            Debug.Log(_scrolled);
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
+        {
+            if (_scrolled > 0) _scrolled -= 1;
+            refreshAnswers();
+            Debug.Log(_scrolled);
+        }
+
+
     }
 
 
